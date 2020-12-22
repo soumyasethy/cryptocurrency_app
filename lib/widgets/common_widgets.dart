@@ -1,21 +1,28 @@
 import 'package:clover_ag/models/cryptocurrency_model.dart';
+import 'package:clover_ag/utils/common_colors.dart';
 import 'package:clover_ag/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-Widget initialRender() {
+Widget initialRender(BuildContext context) {
   return Column(
     children: [
       Icon(
         Icons.search,
         size: 200,
-        color: Colors.grey.withOpacity(0.50),
+        color: CommonColors.greyIcon,
       ),
-      Text(CommonStrings.enterACurrencyPairToLoadData)
+      Text(
+        CommonStrings.enterACurrencyPairToLoadData,
+        style: Theme.of(context).textTheme.caption,
+      )
     ],
   );
 }
 
-Widget renderTicker(CryptocurrencyModel data) {
+Widget renderTicker(BuildContext context, CryptocurrencyModel data) {
+  var date = DateTime.fromMicrosecondsSinceEpoch(int.parse(data.timestamp));
+  final DateFormat formatter = DateFormat('dd MMM yyyy, HH:mm:s');
   return Column(
     children: [
       SizedBox(
@@ -23,7 +30,16 @@ Widget renderTicker(CryptocurrencyModel data) {
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(data.name), Text(data.timestamp)],
+        children: [
+          Text(
+            data.name.toUpperCase(),
+            style: Theme.of(context).textTheme.headline1,
+          ),
+          Text(
+            formatter.format(date),
+            style: Theme.of(context).textTheme.bodyText1,
+          )
+        ],
       ),
       SizedBox(
         height: 24,
@@ -31,10 +47,10 @@ Widget renderTicker(CryptocurrencyModel data) {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          titleWithText(
+          titleWithText(context,
               primaryText: CommonStrings.open,
               secondaryText: data.open.toString()),
-          titleWithText(
+          titleWithText(context,
               primaryText: CommonStrings.high,
               secondaryText: data.high.toString()),
         ],
@@ -45,10 +61,10 @@ Widget renderTicker(CryptocurrencyModel data) {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          titleWithText(
+          titleWithText(context,
               primaryText: CommonStrings.low,
               secondaryText: data.low.toString()),
-          titleWithText(
+          titleWithText(context,
               primaryText: CommonStrings.last,
               secondaryText: data.last.toString()),
         ],
@@ -60,72 +76,90 @@ Widget renderTicker(CryptocurrencyModel data) {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           titleWithText(
-              primaryText: CommonStrings.volume,
-              secondaryText: data.volume.toString()),
+            context,
+            isCurrency: false,
+            primaryText: CommonStrings.volume,
+            secondaryText: data.volume.toString(),
+          ),
         ],
       ),
     ],
   );
 }
 
-Widget renderSearchBar({@required Function onSearch}) {
+Widget renderSearchBar(BuildContext context, {@required Function onSearch}) {
   final TextEditingController textEditingController = TextEditingController();
   var focusNode = FocusNode();
 
   return Container(
+    padding: EdgeInsets.fromLTRB(16, 4, 8, 4),
     decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4), color: Color(0xffF4F4F4)),
+        borderRadius: BorderRadius.circular(4), color: CommonColors.textBox),
     child: TextField(
       controller: textEditingController,
-      style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-      ),
+      style: Theme.of(context).inputDecorationTheme.hintStyle,
       focusNode: focusNode,
       onChanged: (String keyword) {},
       decoration: InputDecoration(
           border: InputBorder.none,
           hintText: CommonStrings.enterCurrencyPair,
-          hintStyle: TextStyle(color: Colors.grey),
+          hintStyle: TextStyle(color: CommonColors.textHint),
           suffixIcon: IconButton(
             onPressed: () {
               onSearch(textEditingController.text);
             },
-            icon: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.search,
-                color: Colors.black,
-                // size: 16,
-              ),
+            icon: Icon(
+              Icons.search,
+              color: Colors.black,
+              // size: 16,
             ),
           )),
     ),
   );
 }
 
-Widget titleWithText({String primaryText = '', String secondaryText = ''}) {
+Widget titleWithText(BuildContext context,
+    {String primaryText = '', String secondaryText = '', isCurrency = true}) {
+  final formatCurrency = NumberFormat("#,##0.00", "en_US");
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
-    children: [Text(primaryText), Text(secondaryText)],
+    children: [
+      Text(
+        primaryText,
+        style: Theme.of(context).textTheme.headline2,
+      ),
+      SizedBox(
+        height: 4,
+      ),
+      Text(
+        isCurrency
+            ? '\$ ${formatCurrency.format(double.parse(secondaryText))}'
+            : secondaryText,
+        style: Theme.of(context).textTheme.bodyText2,
+      )
+    ],
   );
 }
 
-Widget renderOrderBookHeader() {
+Widget renderOrderBookHeader(BuildContext context) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Text(
         CommonStrings.bidPrice,
+        style: Theme.of(context).textTheme.headline2,
       ),
       Text(
         CommonStrings.qty,
+        style: Theme.of(context).textTheme.headline2,
       ),
       Text(
         CommonStrings.qty,
+        style: Theme.of(context).textTheme.headline2,
       ),
       Text(
         CommonStrings.askPrice,
+        style: Theme.of(context).textTheme.headline2,
       ),
     ],
   );

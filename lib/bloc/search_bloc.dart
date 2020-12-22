@@ -4,29 +4,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchState {}
 
-class Initial extends SearchState {}
+class InitialSearch extends SearchState {}
 
-class Loading extends SearchState {}
+class LoadingSearch extends SearchState {}
 
-class Success extends SearchState {
+class SuccessSearch extends SearchState {
   final CryptocurrencyModel cryptocurrency;
 
-  Success(this.cryptocurrency);
+  SuccessSearch(this.cryptocurrency);
 }
 
-class Fail extends SearchState {}
+class FailSearch extends SearchState {}
 
 class SearchBloc extends Cubit<SearchState> {
-  SearchBloc() : super(Initial());
+  SearchBloc() : super(InitialSearch());
   TickerRepo _tickerRepo = TickerRepo();
 
   void search(String code) async {
-    emit(Loading());
+    emit(LoadingSearch());
     CryptocurrencyModel cryptocurrencyModel = await _tickerRepo.fetch(code);
     cryptocurrencyModel.name = code;
     if (cryptocurrencyModel != null)
-      emit(Success(cryptocurrencyModel));
+      emit(SuccessSearch(cryptocurrencyModel));
     else
-      Fail();
+      FailSearch();
   }
 }
